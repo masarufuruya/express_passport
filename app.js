@@ -1,25 +1,23 @@
-
-// expressオブジェクト作成
+// 初期設定
 var express = require('express');
 app = express();
 
-// 環境設定
+var session = require('express-session');
+var cookieParser = require('cookie-parser')
+
+require('./config/passport');
+require('./config/facebook');
+
+// ビュー設定
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
-var passport = require('passport')
-	, FacebookStrategy = require('passport-facebook').Strategy;
-
-passport.use(new FacebookStrategy({
-		clientID: 610851339026827,
-		clientSecret: '9f33feb4721e704ccd71eb396dfafb6b',
-		callbackURL: "http://localhost:3000/auth/facebook/callback"
-	},
-	// アクセストークン、プロフィール情報を受け取る
-	function(accessToken, refreshToken, profile, done) {
-		// ユーザー登録
-	}
-));
+app.use(cookieParser());
+app.use(session({
+	secret: 'secretkey',
+	resave: false,
+  	saveUninitialized: true
+}));
 
 // routing
 app.get('/', function(req, res) {
@@ -29,7 +27,7 @@ app.get('/auth/facebook', passport.authenticate('facebook'));
 
 // ユーザー認証が完了したらアクセストークン発行してログイン処理
 app.get('/auth/facebook/callback',
-  passport.authenticate('facebook', { successRedirect: '/',
+  passport.authenticate('facebook', { successRedirect: '/top/',
                                       failureRedirect: '/login' }));
 
 app.listen(3000);
